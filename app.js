@@ -20,7 +20,7 @@ const requestListener = (req, res)=>{
     if(req.url=="/todos" && req.method == "GET"){
         res.writeHead(200,headers);
         res.write(JSON.stringify({
-            "status": "success(GET)",
+            "status": "success(GET!)",
             "data": todos,
         }));
         res.end();
