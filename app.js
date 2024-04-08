@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require("uuid");
 
 const todos = [];
 const errHandle = require("./errorHandle"); //匯入
-const headers = require("./headers");
+const successHandle = require("./successHandle");
 
 const requestListener = (req, res) => {
   let body = ""; //把接到的資料轉成字串
@@ -12,27 +12,13 @@ const requestListener = (req, res) => {
   });
 
   if (req.url == "/todos" && req.method == "GET") {
-    res.writeHead(200, headers);
-    res.write(
-      JSON.stringify({
-        status: "success(GET!)",
-        data: todos,
-      })
-    );
-    res.end();
+    successHandle(res, req.method, todos);
   } else if (req.url.startsWith("/todos/") && req.method == "DELETE") {
     const id = req.url.split("/").pop(); //split變成陣列後，pop取出最後一個
     const index = todos.findIndex((element) => element.id == id); //會將陣列中的「每一個」元素帶入指定的函式內做判斷，並會回傳第一個符合判斷條件元素的位置號碼，如果沒有元素符合則會回傳 -1。
     if (index !== -1) {
       todos.splice(index, 1);
-      res.writeHead(200, headers);
-      res.write(
-        JSON.stringify({
-          status: "success(Delete!)",
-          data: todos,
-        })
-      );
-      res.end();
+      successHandle(res, req.method, todos);
     } else {
       errHandle(res);
     }
@@ -45,15 +31,7 @@ const requestListener = (req, res) => {
 
         if (revisedTitle !== undefined && index !== -1) {
           todos[index].title = revisedTitle;
-
-          res.writeHead(200, headers);
-          res.write(
-            JSON.stringify({
-              status: "success(PATCh)",
-              data: todos,
-            })
-          );
-          res.end();
+          successHandle(res, req.method, todos);
         } else {
           errHandle(res);
         }
@@ -63,14 +41,7 @@ const requestListener = (req, res) => {
     });
   } else if (req.url == "/todos" && req.method == "DELETE") {
     todos.length = 0; //最簡單把陣列清空的方法
-    res.writeHead(200, headers);
-    res.write(
-      JSON.stringify({
-        status: "success(Delete)",
-        data: todos,
-      })
-    );
-    res.end();
+    successHandle(res, req.method, todos);
   } else if (req.url == "/todos" && req.method == "POST") {
     req.on("end", () => {
       try {
@@ -83,14 +54,7 @@ const requestListener = (req, res) => {
             id: uuidv4(),
           };
           todos.push(todo);
-          res.writeHead(200, headers);
-          res.write(
-            JSON.stringify({
-              status: "success(POST)",
-              data: todo,
-            })
-          );
-          res.end();
+          successHandle(res, req.method, todos);
         } else {
           errHandle(res);
         }
@@ -99,14 +63,7 @@ const requestListener = (req, res) => {
       }
     });
   } else if (req.method == "OPTIONS") {
-    res.writeHead(200, headers);
-    res.write(
-      JSON.stringify({
-        status: "success",
-        data: "OPTIONS",
-      })
-    );
-    res.end();
+    successHandle(res, req.method, todos);
   } else {
     const id = req.url.split("/").pop();
     res.writeHead(404, headers);
